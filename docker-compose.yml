@@ -1,0 +1,75 @@
+# S4 Console - Docker Compose Configuration
+#
+# Usage:
+#   Development:  docker compose up dev
+#   Production:   docker compose up prod
+#   With S4:      docker compose --profile full up
+
+services:
+  # ============================================
+  # Development Mode (hot reload)
+  # ============================================
+  dev:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - S4_BACKEND_URL=${S4_BACKEND_URL:-http://192.168.11.130:9000}
+      - WATCHPACK_POLLING=true # Enable polling for Windows/WSL2
+    command: sh -c "npm install && npm run dev"
+    # For self-signed TLS certificates (development only)
+    # environment:
+    #   - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+  # ============================================
+  # Production Mode (optimized build)
+  # ============================================
+  prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        S4_BACKEND_URL: ${S4_BACKEND_URL:-http://192.168.11.130:9000}
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - S4_BACKEND_URL=${S4_BACKEND_URL:-http://192.168.11.130:9000}
+    restart: unless-stopped
+
+  # ============================================
+  # Full Stack (S4 Server + Console)
+  # ============================================
+  s4-server:
+    image: s4-server:latest
+    profiles:
+      - full
+    ports:
+      - "9000:9000"
+    environment:
+      - S4_ROOT_PASSWORD=${S4_ROOT_PASSWORD:-password12345}
+      - S4_DATA_DIR=/data
+    volumes:
+      - s4-data:/data
+
+  console-with-s4:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles:
+      - full
+    ports:
+      - "3000:3000"
+    environment:
+      - S4_BACKEND_URL=http://s4-server:9000
+    depends_on:
+      - s4-server
+    restart: unless-stopped
+
+volumes:
+  s4-data:

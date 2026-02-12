@@ -1,0 +1,255 @@
+'use client';
+
+import { useEffect, useState, useCallback } from 'react';
+import { Header } from '@/components/header';
+import { Modal } from '@/components/modal';
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { apiFetch } from '@/lib/api';
+import { User } from '@/lib/types';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const ROLES = ['Reader', 'Writer', 'SuperUser'] as const;
+
+function roleBadge(role: string) {
+  const colors: Record<string, string> = {
+    SuperUser: 'bg-accent-pink/20 text-accent-pink',
+    Writer: 'bg-accent-coral/20 text-accent-coral',
+    Reader: 'bg-accent-blue/20 text-blue-400',
+  };
+  return (
+    <span className={`px-2 py-0.5 rounded-lg text-xs font-medium ${colors[role] ?? ''}`}>
+      {role}
+    </span>
+  );
+}
+
+export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [form, setForm] = useState({ username: '', password: '', role: 'Reader' as string });
+  const [editForm, setEditForm] = useState({ password: '', role: '', is_active: true });
+  const [loading, setLoading] = useState(false);
+
+  const load = useCallback(() => {
+    apiFetch<{ users: User[] }>('/admin/users')
+      .then((r) => setUsers(r.users))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await apiFetch('/admin/users', {
+        method: 'POST',
+        body: JSON.stringify(form),
+      });
+      toast.success(`User "${form.username}" created`);
+      setShowCreate(false);
+      setForm({ username: '', password: '', role: 'Reader' });
+      load();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editUser) return;
+    setLoading(true);
+    try {
+      const body: Record<string, unknown> = { role: editForm.role, is_active: editForm.is_active };
+      if (editForm.password) body.password = editForm.password;
+      await apiFetch(`/admin/users/${editUser.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      });
+      toast.success(`User "${editUser.username}" updated`);
+      setEditUser(null);
+      load();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setLoading(true);
+    try {
+      await apiFetch(`/admin/users/${deleteTarget.id}`, { method: 'DELETE' });
+      toast.success(`User "${deleteTarget.username}" deleted`);
+      setDeleteTarget(null);
+      load();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEdit = (user: User) => {
+    setEditUser(user);
+    setEditForm({ password: '', role: user.role, is_active: user.is_active });
+  };
+
+  return (
+    <>
+      <Header title="Users" description="Manage IAM users" />
+      <div className="mb-4">
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white text-sm font-medium shadow-[0_4px_15px_rgba(255,75,145,0.3)] hover:shadow-[0_6px_20px_rgba(255,75,145,0.5)] hover:-translate-y-0.5 transition-all"
+        >
+          <Plus size={16} /> Create User
+        </button>
+      </div>
+
+      <div className="bg-panel-light dark:bg-panel rounded-card border border-black/5 dark:border-white/5 overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm min-w-[600px]">
+          <thead>
+            <tr className="border-b border-white/5 dark:border-white/5 border-black/5">
+              <th className="text-left px-6 py-3 text-muted font-medium">Username</th>
+              <th className="text-left px-6 py-3 text-muted font-medium">Role</th>
+              <th className="text-left px-6 py-3 text-muted font-medium">Status</th>
+              <th className="text-left px-6 py-3 text-muted font-medium">Created</th>
+              <th className="text-right px-6 py-3 text-muted font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id} className="border-b border-white/5 dark:border-white/5 border-black/5 hover:bg-white/[.02] dark:hover:bg-white/[.02] hover:bg-black/[.02]">
+                <td className="px-6 py-3 font-medium">{u.username}</td>
+                <td className="px-6 py-3">{roleBadge(u.role)}</td>
+                <td className="px-6 py-3">
+                  <span className={`flex items-center gap-1.5 ${u.is_active ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${u.is_active ? 'bg-green-400' : 'bg-red-400'}`} />
+                    {u.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td className="px-6 py-3 text-muted">{new Date(u.created_at).toLocaleDateString()}</td>
+                <td className="px-6 py-3 text-right space-x-1">
+                  <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                    <Pencil size={16} />
+                  </button>
+                  <button onClick={() => setDeleteTarget(u)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-muted">No users found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Create User Modal */}
+      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Create User">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Username</label>
+            <input
+              type="text"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Role</label>
+            <select
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+            >
+              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm rounded-xl border border-white/10 dark:border-white/10 border-black/10 hover:bg-white/5 transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading} className="px-4 py-2 text-sm rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+              {loading ? 'Creating...' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal open={!!editUser} onClose={() => setEditUser(null)} title={`Edit ${editUser?.username}`}>
+        <form onSubmit={handleEdit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">New Password (leave blank to keep)</label>
+            <input
+              type="password"
+              value={editForm.password}
+              onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Role</label>
+            <select
+              value={editForm.role}
+              onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+            >
+              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="is_active"
+              checked={editForm.is_active}
+              onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
+              className="rounded"
+            />
+            <label htmlFor="is_active" className="text-sm">Active</label>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <button type="button" onClick={() => setEditUser(null)} className="px-4 py-2 text-sm rounded-xl border border-white/10 dark:border-white/10 border-black/10 hover:bg-white/5 transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading} className="px-4 py-2 text-sm rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete User"
+        message={`Are you sure you want to delete "${deleteTarget?.username}"?`}
+        loading={loading}
+      />
+    </>
+  );
+}
