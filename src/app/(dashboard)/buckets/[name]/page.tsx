@@ -31,6 +31,10 @@ export default function ObjectBrowserPage() {
 
   const load = useCallback((token?: string) => {
     setLoading(true);
+    if (!token) {
+      setObjects([]);
+      setPrefixes([]);
+    }
     const params = new URLSearchParams();
     if (prefix) params.set('prefix', prefix);
     params.set('max-keys', '50');
@@ -48,9 +52,7 @@ export default function ObjectBrowserPage() {
   }, [bucketName, prefix]);
 
   useEffect(() => {
-    setObjects([]);
-    setPrefixes([]);
-    load();
+    load(); // eslint-disable-line react-hooks/set-state-in-effect -- data fetching on prefix change
   }, [prefix, load]);
 
   const breadcrumbs = prefix.split('/').filter(Boolean);

@@ -1,0 +1,16 @@
+.git
+.github
+.next
+node_modules
+*.md
+LICENSE
+ideas
+plans
+assets
+docs
+.eslintrc.json
+.gitignore
+.githubignore
+ci-github.yml
+docker-compose.yml
+.env*

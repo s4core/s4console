@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react';
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const stored = localStorage.getItem('s4_theme');
+    return stored ? stored === 'dark' : true;
+  });
 
   useEffect(() => {
-    const stored = localStorage.getItem('s4_theme');
-    const isDark = stored ? stored === 'dark' : true;
-    setDark(isDark);
-    document.documentElement.classList.toggle('dark', isDark);
-  }, []);
+    document.documentElement.classList.toggle('dark', dark);
+  }, [dark]);
 
   const toggle = () => {
     const next = !dark;

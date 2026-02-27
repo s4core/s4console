@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { apiFetch } from './api';
 import { LoginResponse } from './types';
 
@@ -29,25 +29,19 @@ function parseJwt(token: string) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    token: null,
-    username: null,
-    role: null,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
+  const [state, setState] = useState<AuthState>(() => {
+    if (typeof window === 'undefined') return { token: null, username: null, role: null };
     const token = localStorage.getItem('s4_token');
     if (token) {
       const claims = parseJwt(token);
       if (claims && claims.exp * 1000 > Date.now()) {
-        setState({ token, username: claims.username, role: claims.role });
-      } else {
-        localStorage.removeItem('s4_token');
+        return { token, username: claims.username, role: claims.role };
       }
+      localStorage.removeItem('s4_token');
     }
-    setIsLoading(false);
-  }, []);
+    return { token: null, username: null, role: null };
+  });
+  const isLoading = false;
 
   const login = useCallback(async (username: string, password: string) => {
     const res = await apiFetch<LoginResponse>('/admin/login', {
