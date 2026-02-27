@@ -18,6 +18,13 @@ function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
+const BTN_PRIMARY = 'flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-sm)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-medium shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all';
+const BTN_SECONDARY = 'px-4 py-2 text-sm rounded-[var(--radius-sm)] border border-[var(--border)] hover:bg-[var(--sidebar-hover-bg)] transition-colors text-[var(--text-dark)]';
+const INPUT_STYLES = 'w-full px-4 py-2.5 rounded-[var(--radius-sm)] bg-[var(--input-bg)] border border-[var(--input-border)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 text-[var(--text-dark)]';
+const TABLE_CARD = 'bg-[var(--card-bg)] rounded-[var(--radius-card)] border border-[var(--border)] overflow-hidden overflow-x-auto shadow-[var(--shadow-card)]';
+const TR_BORDER = 'border-b border-[var(--border)]';
+const TR_HOVER = `${TR_BORDER} hover:bg-black/[.02] dark:hover:bg-white/[.02]`;
+
 export default function BucketsPage() {
   const [buckets, setBuckets] = useState<BucketStat[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -69,36 +76,33 @@ export default function BucketsPage() {
     <>
       <Header title="Buckets" description="Manage storage buckets" />
       <div className="mb-4">
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white text-sm font-medium shadow-[0_4px_15px_rgba(255,75,145,0.3)] hover:shadow-[0_6px_20px_rgba(255,75,145,0.5)] hover:-translate-y-0.5 transition-all"
-        >
+        <button onClick={() => setShowCreate(true)} className={BTN_PRIMARY}>
           <Plus size={16} /> Create Bucket
         </button>
       </div>
 
-      <div className="bg-panel-light dark:bg-panel rounded-card border border-black/5 dark:border-white/5 overflow-hidden overflow-x-auto">
+      <div className={TABLE_CARD}>
         <table className="w-full text-sm min-w-[600px]">
           <thead>
-            <tr className="border-b border-white/5 dark:border-white/5 border-black/5">
-              <th className="text-left px-6 py-3 text-muted font-medium">Name</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Objects</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Size</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Created</th>
-              <th className="text-right px-6 py-3 text-muted font-medium">Actions</th>
+            <tr className={TR_BORDER}>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Name</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Objects</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Size</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Created</th>
+              <th className="text-right px-6 py-3 text-[var(--text-muted)] font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {buckets.map((b) => (
-              <tr key={b.name} className="border-b border-white/5 dark:border-white/5 border-black/5 hover:bg-white/[.02] dark:hover:bg-white/[.02] hover:bg-black/[.02]">
+              <tr key={b.name} className={TR_HOVER}>
                 <td className="px-6 py-3">
-                  <Link href={`/buckets/${b.name}`} className="flex items-center gap-2 text-accent-pink hover:underline">
+                  <Link href={`/buckets/${b.name}`} className="flex items-center gap-2 text-[var(--accent)] hover:underline">
                     <FolderOpen size={16} /> {b.name}
                   </Link>
                 </td>
-                <td className="px-6 py-3">{b.objects_count}</td>
-                <td className="px-6 py-3">{formatBytes(b.storage_used_bytes)}</td>
-                <td className="px-6 py-3 text-muted">{new Date(b.created_at / 1_000_000).toLocaleDateString()}</td>
+                <td className="px-6 py-3 text-[var(--text-dark)]">{b.objects_count}</td>
+                <td className="px-6 py-3 text-[var(--text-dark)]">{formatBytes(b.storage_used_bytes)}</td>
+                <td className="px-6 py-3 text-[var(--text-muted)]">{new Date(b.created_at / 1_000_000).toLocaleDateString()}</td>
                 <td className="px-6 py-3 text-right">
                   <button onClick={() => setDeleteTarget(b.name)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
                     <Trash2 size={16} />
@@ -108,7 +112,7 @@ export default function BucketsPage() {
             ))}
             {buckets.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-muted">No buckets found</td>
+                <td colSpan={5} className="px-6 py-8 text-center text-[var(--text-muted)]">No buckets found</td>
               </tr>
             )}
           </tbody>
@@ -118,22 +122,22 @@ export default function BucketsPage() {
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Create Bucket">
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Bucket Name</label>
+            <label className="block text-sm font-medium mb-1 text-[var(--text-dark)]">Bucket Name</label>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               pattern="[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]"
               title="Lowercase letters, numbers, hyphens, dots. 3-63 characters."
-              className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+              className={INPUT_STYLES}
               required
             />
           </div>
           <div className="flex gap-3 justify-end">
-            <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm rounded-xl border border-white/10 dark:border-white/10 border-black/10 hover:bg-white/5 transition-colors">
+            <button type="button" onClick={() => setShowCreate(false)} className={BTN_SECONDARY}>
               Cancel
             </button>
-            <button type="submit" disabled={creating} className="px-4 py-2 text-sm rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+            <button type="submit" disabled={creating} className="px-4 py-2 text-sm rounded-[var(--radius-sm)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-medium transition-opacity disabled:opacity-50">
               {creating ? 'Creating...' : 'Create'}
             </button>
           </div>

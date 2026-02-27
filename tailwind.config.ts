@@ -7,34 +7,34 @@ const config: Config = {
     extend: {
       colors: {
         panel: {
-          DEFAULT: '#1e1e2d',
-          light: '#ffffff',
+          DEFAULT: 'var(--card-bg)',
+          light: 'var(--card-bg)',
         },
         surface: {
-          DEFAULT: '#151521',
-          light: '#f4f7fe',
+          DEFAULT: 'var(--input-bg)',
+          light: 'var(--input-bg)',
         },
         sidebar: {
-          DEFAULT: '#0f0f15',
-          light: '#ffffff',
+          DEFAULT: 'var(--sidebar-bg)',
+          light: 'var(--sidebar-bg)',
         },
         accent: {
-          pink: '#ff4b91',
-          coral: '#ff9068',
+          pink: 'var(--accent)',
+          coral: 'var(--accent-secondary)',
           purple: '#8E54E9',
           blue: '#4776E6',
         },
         muted: {
-          DEFAULT: '#92929f',
-          light: '#a3aed0',
+          DEFAULT: 'var(--text-muted)',
+          light: 'var(--text-muted)',
         },
       },
       fontFamily: {
         sans: ['Poppins', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        window: '30px',
-        card: '20px',
+        window: 'var(--radius-window)',
+        card: 'var(--radius-card)',
       },
     },
   },

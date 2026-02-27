@@ -9,6 +9,13 @@ import { User, S3Credentials } from '@/lib/types';
 import { Plus, Trash2, Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const BTN_PRIMARY = 'flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-sm)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-sm font-medium shadow-[var(--shadow-card)] hover:-translate-y-0.5 transition-all';
+const BTN_SECONDARY = 'px-4 py-2 text-sm rounded-[var(--radius-sm)] border border-[var(--border)] hover:bg-[var(--sidebar-hover-bg)] transition-colors text-[var(--text-dark)]';
+const INPUT_STYLES = 'w-full px-4 py-2.5 rounded-[var(--radius-sm)] bg-[var(--input-bg)] border border-[var(--input-border)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 text-[var(--text-dark)]';
+const TABLE_CARD = 'bg-[var(--card-bg)] rounded-[var(--radius-card)] border border-[var(--border)] overflow-hidden overflow-x-auto shadow-[var(--shadow-card)]';
+const TR_BORDER = 'border-b border-[var(--border)]';
+const TR_HOVER = `${TR_BORDER} hover:bg-black/[.02] dark:hover:bg-white/[.02]`;
+
 export default function KeysPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [showGenerate, setShowGenerate] = useState(false);
@@ -76,27 +83,27 @@ export default function KeysPage() {
             setCredentials(null);
             setSelectedUserId('');
           }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white text-sm font-medium shadow-[0_4px_15px_rgba(255,75,145,0.3)] hover:shadow-[0_6px_20px_rgba(255,75,145,0.5)] hover:-translate-y-0.5 transition-all"
+          className={BTN_PRIMARY}
         >
           <Plus size={16} /> Generate Keys
         </button>
       </div>
 
-      <div className="bg-panel-light dark:bg-panel rounded-card border border-black/5 dark:border-white/5 overflow-hidden overflow-x-auto">
+      <div className={TABLE_CARD}>
         <table className="w-full text-sm min-w-[500px]">
           <thead>
-            <tr className="border-b border-white/5 dark:border-white/5 border-black/5">
-              <th className="text-left px-6 py-3 text-muted font-medium">Username</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Access Key</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Status</th>
-              <th className="text-right px-6 py-3 text-muted font-medium">Actions</th>
+            <tr className={TR_BORDER}>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Username</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Access Key</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Status</th>
+              <th className="text-right px-6 py-3 text-[var(--text-muted)] font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {usersWithKeys.map((u) => (
-              <tr key={u.id} className="border-b border-white/5 dark:border-white/5 border-black/5 hover:bg-white/[.02] dark:hover:bg-white/[.02] hover:bg-black/[.02]">
-                <td className="px-6 py-3 font-medium">{u.username}</td>
-                <td className="px-6 py-3 font-mono text-xs">{u.access_key}</td>
+              <tr key={u.id} className={TR_HOVER}>
+                <td className="px-6 py-3 font-medium text-[var(--text-dark)]">{u.username}</td>
+                <td className="px-6 py-3 font-mono text-xs text-[var(--text-dark)]">{u.access_key}</td>
                 <td className="px-6 py-3">
                   <span className="text-green-400 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> Active
@@ -111,7 +118,7 @@ export default function KeysPage() {
             ))}
             {usersWithKeys.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted">No API keys found</td>
+                <td colSpan={4} className="px-6 py-8 text-center text-[var(--text-muted)]">No API keys found</td>
               </tr>
             )}
           </tbody>
@@ -123,11 +130,11 @@ export default function KeysPage() {
         {!credentials ? (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Select User</label>
+              <label className="block text-sm font-medium mb-1 text-[var(--text-dark)]">Select User</label>
               <select
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-surface-light dark:bg-surface border border-black/10 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-pink/50"
+                className={INPUT_STYLES}
               >
                 <option value="">Choose a user...</option>
                 {users.filter((u) => !u.access_key).map((u) => (
@@ -136,43 +143,43 @@ export default function KeysPage() {
               </select>
             </div>
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setShowGenerate(false)} className="px-4 py-2 text-sm rounded-xl border border-white/10 dark:border-white/10 border-black/10 hover:bg-white/5 transition-colors">
+              <button onClick={() => setShowGenerate(false)} className={BTN_SECONDARY}>
                 Cancel
               </button>
-              <button onClick={handleGenerate} disabled={!selectedUserId || loading} className="px-4 py-2 text-sm rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+              <button onClick={handleGenerate} disabled={!selectedUserId || loading} className="px-4 py-2 text-sm rounded-[var(--radius-sm)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-medium transition-opacity disabled:opacity-50">
                 {loading ? 'Generating...' : 'Generate'}
               </button>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-sm text-yellow-300">
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-[var(--radius-sm)] text-sm text-yellow-600 dark:text-yellow-300">
               Save these credentials now. The secret key will not be shown again.
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Access Key</label>
+              <label className="block text-sm font-medium mb-1 text-[var(--text-dark)]">Access Key</label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-3 py-2 rounded-xl bg-surface-light dark:bg-surface text-xs font-mono break-all">
+                <code className="flex-1 px-3 py-2 rounded-[var(--radius-sm)] bg-[var(--input-bg)] text-xs font-mono break-all text-[var(--text-dark)]">
                   {credentials.access_key}
                 </code>
-                <button onClick={() => copyToClipboard(credentials.access_key, 'access')} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                <button onClick={() => copyToClipboard(credentials.access_key, 'access')} className="p-2 rounded-lg hover:bg-[var(--sidebar-hover-bg)] transition-colors text-[var(--text-muted)]">
                   {copiedField === 'access' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
                 </button>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Secret Key</label>
+              <label className="block text-sm font-medium mb-1 text-[var(--text-dark)]">Secret Key</label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-3 py-2 rounded-xl bg-surface-light dark:bg-surface text-xs font-mono break-all">
+                <code className="flex-1 px-3 py-2 rounded-[var(--radius-sm)] bg-[var(--input-bg)] text-xs font-mono break-all text-[var(--text-dark)]">
                   {credentials.secret_key}
                 </code>
-                <button onClick={() => copyToClipboard(credentials.secret_key, 'secret')} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+                <button onClick={() => copyToClipboard(credentials.secret_key, 'secret')} className="p-2 rounded-lg hover:bg-[var(--sidebar-hover-bg)] transition-colors text-[var(--text-muted)]">
                   {copiedField === 'secret' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
                 </button>
               </div>
             </div>
             <div className="flex justify-end">
-              <button onClick={() => setShowGenerate(false)} className="px-4 py-2 text-sm rounded-xl bg-gradient-to-r from-accent-pink to-accent-coral text-white font-medium hover:opacity-90 transition-opacity">
+              <button onClick={() => setShowGenerate(false)} className="px-4 py-2 text-sm rounded-[var(--radius-sm)] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-medium transition-opacity">
                 Done
               </button>
             </div>

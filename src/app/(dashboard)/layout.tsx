@@ -3,11 +3,13 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useDesign } from '@/lib/design-context';
 import { SidebarProvider } from '@/lib/sidebar-context';
 import { Sidebar } from '@/components/sidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isOldDesign } = useDesign();
   const router = useRouter();
 
   useEffect(() => {
@@ -18,11 +20,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isLoading || !isAuthenticated) return null;
 
+  const containerClasses = isOldDesign
+    ? 'w-full h-full lg:w-[95%] lg:h-[92%] bg-sidebar dark:bg-sidebar lg:rounded-window shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex overflow-hidden'
+    : 'w-full h-screen flex overflow-hidden';
+
   return (
     <SidebarProvider>
-      <div className="w-full h-full lg:w-[95%] lg:h-[92%] bg-sidebar-light dark:bg-sidebar lg:rounded-window shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex overflow-hidden">
+      <div className={containerClasses}>
         <Sidebar />
-        <main className="flex-1 bg-surface-light dark:bg-surface overflow-y-auto py-4 px-4 sm:py-6 sm:px-6 lg:py-[30px] lg:px-[40px] flex flex-col gap-4 sm:gap-6 lg:gap-[30px]">
+        <main className="flex-1 bg-[var(--bg)] overflow-y-auto py-4 px-4 sm:py-6 sm:px-6 lg:py-[30px] lg:px-[40px] flex flex-col gap-4 sm:gap-6 lg:gap-[30px]">
           {children}
         </main>
       </div>

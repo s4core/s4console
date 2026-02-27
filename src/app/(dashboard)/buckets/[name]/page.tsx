@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { Header } from '@/components/header';
 import { apiFetch } from '@/lib/api';
 import { ListObjectsResponse, ObjectInfo } from '@/lib/types';
@@ -15,6 +14,10 @@ function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
+
+const TABLE_CARD = 'bg-[var(--card-bg)] rounded-[var(--radius-card)] border border-[var(--border)] overflow-hidden overflow-x-auto shadow-[var(--shadow-card)]';
+const TR_BORDER = 'border-b border-[var(--border)]';
+const TR_HOVER = `${TR_BORDER} hover:bg-black/[.02] dark:hover:bg-white/[.02]`;
 
 export default function ObjectBrowserPage() {
   const params = useParams();
@@ -58,15 +61,15 @@ export default function ObjectBrowserPage() {
 
       {/* Breadcrumbs */}
       <div className="flex items-center gap-1 text-sm mb-4 flex-wrap">
-        <button onClick={() => setPrefix('')} className="text-accent-pink hover:underline">
+        <button onClick={() => setPrefix('')} className="text-[var(--accent)] hover:underline">
           {bucketName}
         </button>
         {breadcrumbs.map((part, i) => {
           const path = breadcrumbs.slice(0, i + 1).join('/') + '/';
           return (
             <span key={path} className="flex items-center gap-1">
-              <ChevronRight size={14} className="text-muted" />
-              <button onClick={() => setPrefix(path)} className="text-accent-pink hover:underline">
+              <ChevronRight size={14} className="text-[var(--text-muted)]" />
+              <button onClick={() => setPrefix(path)} className="text-[var(--accent)] hover:underline">
                 {part}
               </button>
             </span>
@@ -74,44 +77,44 @@ export default function ObjectBrowserPage() {
         })}
       </div>
 
-      <div className="bg-panel-light dark:bg-panel rounded-card border border-black/5 dark:border-white/5 overflow-hidden overflow-x-auto">
+      <div className={TABLE_CARD}>
         <table className="w-full text-sm min-w-[500px]">
           <thead>
-            <tr className="border-b border-white/5 dark:border-white/5 border-black/5">
-              <th className="text-left px-6 py-3 text-muted font-medium">Name</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Size</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Type</th>
-              <th className="text-left px-6 py-3 text-muted font-medium">Last Modified</th>
+            <tr className={TR_BORDER}>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Name</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Size</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Type</th>
+              <th className="text-left px-6 py-3 text-[var(--text-muted)] font-medium">Last Modified</th>
             </tr>
           </thead>
           <tbody>
             {prefixes.map((p) => (
               <tr
                 key={p}
-                className="border-b border-white/5 dark:border-white/5 border-black/5 hover:bg-white/[.02] dark:hover:bg-white/[.02] hover:bg-black/[.02] cursor-pointer"
+                className={`${TR_HOVER} cursor-pointer`}
                 onClick={() => setPrefix(p)}
               >
-                <td className="px-6 py-3 flex items-center gap-2 text-accent-pink">
+                <td className="px-6 py-3 flex items-center gap-2 text-[var(--accent)]">
                   <Folder size={16} /> {p.replace(prefix, '').replace(/\/$/, '')}
                 </td>
-                <td className="px-6 py-3 text-muted">-</td>
-                <td className="px-6 py-3 text-muted">Folder</td>
-                <td className="px-6 py-3 text-muted">-</td>
+                <td className="px-6 py-3 text-[var(--text-muted)]">-</td>
+                <td className="px-6 py-3 text-[var(--text-muted)]">Folder</td>
+                <td className="px-6 py-3 text-[var(--text-muted)]">-</td>
               </tr>
             ))}
             {objects.map((obj) => (
-              <tr key={obj.key} className="border-b border-white/5 dark:border-white/5 border-black/5 hover:bg-white/[.02] dark:hover:bg-white/[.02] hover:bg-black/[.02]">
-                <td className="px-6 py-3 flex items-center gap-2">
-                  <File size={16} className="text-muted" /> {obj.key.replace(prefix, '')}
+              <tr key={obj.key} className={TR_HOVER}>
+                <td className="px-6 py-3 flex items-center gap-2 text-[var(--text-dark)]">
+                  <File size={16} className="text-[var(--text-muted)]" /> {obj.key.replace(prefix, '')}
                 </td>
-                <td className="px-6 py-3">{formatBytes(obj.size)}</td>
-                <td className="px-6 py-3 text-muted">{obj.content_type}</td>
-                <td className="px-6 py-3 text-muted">{new Date(obj.last_modified / 1_000_000).toLocaleString()}</td>
+                <td className="px-6 py-3 text-[var(--text-dark)]">{formatBytes(obj.size)}</td>
+                <td className="px-6 py-3 text-[var(--text-muted)]">{obj.content_type}</td>
+                <td className="px-6 py-3 text-[var(--text-muted)]">{new Date(obj.last_modified / 1_000_000).toLocaleString()}</td>
               </tr>
             ))}
             {!loading && objects.length === 0 && prefixes.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-muted">No objects found</td>
+                <td colSpan={4} className="px-6 py-8 text-center text-[var(--text-muted)]">No objects found</td>
               </tr>
             )}
           </tbody>
@@ -122,7 +125,7 @@ export default function ObjectBrowserPage() {
         <div className="mt-4 text-center">
           <button
             onClick={() => load(continuationToken)}
-            className="px-4 py-2 text-sm rounded-xl border border-white/10 dark:border-white/10 border-black/10 hover:bg-white/5 transition-colors"
+            className="px-4 py-2 text-sm rounded-[var(--radius-sm)] border border-[var(--border)] hover:bg-[var(--sidebar-hover-bg)] transition-colors text-[var(--text-dark)]"
           >
             Load More
           </button>

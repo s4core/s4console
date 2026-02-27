@@ -26,13 +26,13 @@ function NavLink({ href, label, icon: Icon, isActive, onClick }: NavLinkProps) {
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center p-[15px] rounded-[15px] font-medium transition-colors ${
+      className={`flex items-center p-[15px] rounded-[var(--radius-sm)] font-medium transition-colors ${
         isActive
-          ? 'bg-panel-light dark:bg-panel text-white dark:text-white shadow-[var(--shadow-card)]'
-          : 'text-muted hover:bg-white/5 dark:hover:bg-white/5 hover:text-white dark:hover:text-white'
+          ? 'bg-[var(--sidebar-active-bg)] text-white shadow-[var(--shadow-card)]'
+          : 'text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover-bg)] hover:text-white'
       }`}
     >
-      <span className={`w-5 mr-[15px] flex justify-center ${isActive ? 'text-accent-pink' : ''}`}>
+      <span className={`w-5 mr-[15px] flex justify-center ${isActive ? 'text-[var(--accent)]' : ''}`}>
         <Icon size={20} />
       </span>
       {label}
@@ -70,8 +70,8 @@ export function Sidebar() {
         className={`
           fixed lg:relative inset-y-0 left-0 z-50
           w-[280px] lg:w-[260px] flex-shrink-0
-          border-r border-white/5 dark:border-white/5 border-black/5
-          bg-sidebar-light dark:bg-sidebar
+          border-r border-[var(--border)]
+          bg-[var(--sidebar-bg)]
           flex flex-col py-[30px] px-[20px]
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -80,12 +80,12 @@ export function Sidebar() {
       >
         {/* Header with close button on mobile */}
         <div className="mb-[50px] flex items-center justify-between">
-          <h1 className="text-2xl font-semibold bg-gradient-to-r from-accent-pink to-accent-coral bg-clip-text text-transparent">
+          <h1 className="text-2xl font-semibold text-[var(--sidebar-title)]">
             S4 Admin
           </h1>
           <button
             onClick={close}
-            className="lg:hidden p-2 rounded-lg text-muted hover:text-white hover:bg-white/5 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-[var(--sidebar-text)] hover:text-white hover:bg-[var(--sidebar-hover-bg)] transition-colors"
             aria-label="Close menu"
           >
             <X size={24} />
@@ -116,7 +116,7 @@ export function Sidebar() {
         {/* Logout button */}
         <button
           onClick={handleLogout}
-          className="flex items-center p-[15px] rounded-[15px] font-medium text-muted hover:bg-white/5 dark:hover:bg-white/5 hover:text-white dark:hover:text-white transition-colors w-full"
+          className="flex items-center p-[15px] rounded-[var(--radius-sm)] font-medium text-[var(--sidebar-text)] hover:bg-[var(--sidebar-hover-bg)] hover:text-white transition-colors w-full"
         >
           <span className="w-5 mr-[15px] flex justify-center">
             <LogOut size={20} />

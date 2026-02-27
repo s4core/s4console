@@ -5,9 +5,13 @@ Next.js 14 admin console for the S4 storage server.
 
 ![Demo environment](assets/screenshot.png)
 
-**SERVER** s4core: http://63.141.251.44:10117
+**DEMO ACCESS**:
 
-**WEB** s4console: http://63.141.251.44:24490
+**LOGIN PASS**: root password12345
+
+**S4CORE**: http://63.141.251.44:10117
+
+**S4CONSOLE**: http://63.141.251.44:24490
 
 > Reset demo every 10 min
 

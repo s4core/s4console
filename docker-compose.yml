@@ -40,13 +40,14 @@ services:
     environment:
       - NODE_ENV=production
       - S4_BACKEND_URL=${S4_BACKEND_URL:-http://192.168.11.130:9000}
+      # - DESIGN_OLD=true  # Uncomment to use the classic design
     restart: unless-stopped
 
   # ============================================
   # Full Stack (S4 Server + Console)
   # ============================================
   s4-server:
-    image: s4-server:latest
+    image: s4core/s4core:latest
     profiles:
       - full
     ports:

@@ -27,12 +27,12 @@ export function ThemeToggle() {
         onChange={toggle}
         className="sr-only"
       />
-      <span className="absolute inset-0 rounded-full bg-surface dark:bg-surface bg-surface-light flex items-center justify-between px-1 transition-colors">
+      <span className="absolute inset-0 rounded-full bg-[var(--input-bg)] flex items-center justify-between px-1 transition-colors">
         <span className="text-[10px] leading-none z-[1]">&#9728;</span>
         <span className="text-[10px] leading-none z-[1]">&#9790;</span>
       </span>
       <span
-        className={`absolute bottom-[3px] left-[3px] w-[18px] h-[18px] bg-accent-pink rounded-full z-[2] transition-transform duration-300 ${
+        className={`absolute bottom-[3px] left-[3px] w-[18px] h-[18px] bg-[var(--accent)] rounded-full z-[2] transition-transform duration-300 ${
           !dark ? 'translate-x-[22px]' : ''
         }`}
       />
